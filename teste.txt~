@@ -1,0 +1,50 @@
+*Vertices 23
+4 "Afonso"
+5 "Pedro"
+7 "Gabriel"
+22 "Julio"
+1 "Paulo"
+12 "Ricardo"
+2 "Joao"
+8 "Jose"
+10 "Jacinto"
+11 "Lucas"
+15 "Gustavo"
+21 "Willian"
+0 "Rodrigo"
+20 "Rafael"
+3 "Adao"
+6 "Mario"
+9 "Andre"
+13 "Rubens"
+16 "Elieser"
+14 "Italo"
+19 "Lucio"
+18 "Pablo"
+17 "Alvaro"
+*Arcs
+0 1 2
+0 1 5
+0 5 32
+0 3 34
+3 6 22
+6 5 1
+8 6 34
+*Queries
+get 1
+get 7
+delete 14
+delete 10
+get 0
+get 3
+get 6
+conexao 0 3
+conexao 3 6
+menorcaminho 0 6
+delete 11
+ordemtopologica
+conexao 2 1
+menorcaminho 4 3
+conexao 0 6
+menorcaminho 6 8
+menorcaminho 5 0

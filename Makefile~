@@ -1,0 +1,17 @@
+Grafo:  Grafo_main.o Grafo.o Heap.o ConjuntoDisjunto.o
+	g++ -o Grafo Grafo_main.o Grafo.o Heap.o
+
+Grafo_main.o: Grafo_main.cpp
+	g++ -c Grafo_main.cpp
+
+Grafo.o: Grafo.cpp Grafo.h Aresta.h
+	g++ -c Grafo.cpp Grafo.h 
+
+Heap.o: Heap.cpp Heap.h
+	g++ -c  Heap.cpp Heap.h
+
+ConjuntoDisjunto.o: ConjuntoDisjunto.cpp ConjuntoDisjunto.h
+	g++ -c ConjuntoDisjunto.cpp
+
+clean:
+	rm *.o teste
