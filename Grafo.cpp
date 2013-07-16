@@ -1,3 +1,18 @@
+/*
+	Universidade Federal de Pelotas
+	Centro de Desenvolvimento Tecnologico - CDTec
+	Bacharelado em Ciência da Computação
+
+	Estruturas de Dados 2 - 2012/2
+
+	Professor Ricardo Matsumura Araújo
+
+	Algoritmo de Implementação de Grafos
+
+	Aluno:
+		William Dalmorra de Souza		11100360
+*/
+
 #include "Grafo.h"
 
 Grafo::Grafo(int vertices){
@@ -12,12 +27,14 @@ Grafo::Grafo(int vertices){
 	// Inicia a matriz com valor "nulo"
 	for (i = 0; i < vertices; ++i) {
 		for (j = 0; j < vertices; ++j) {
-			matrizAdj[i*vertices + j] = -1;
+			matrizAdj[i*vertices + j] = INT_MIN;
 		}
 	}
 
 	numeroVert = vertices;
 	numeroVertAtual = vertices;
+	arestasNegativas = false;
+	direcionado = false;
 
 } // Fim construtor
 
@@ -27,16 +44,21 @@ Grafo::~Grafo()
 	free(matrizAdj);
 }
 
+void Grafo::setTipo(bool tipo)
+{
+	direcionado = tipo;
+}
+
 void Grafo::getId(int ID)
 {
 	cout<< "{\"vertice\":{\"ID\":"<<ID<<", \"dado\":\""<< tabelaRef[ID]<<"\", \"resposta\":\"";
 	if (tabelaRef[ID] == "")
 	{
-		cout<< "Falha";
+		cout<< "falha";
 	}
 	else
 	{
-		cout<< "Sucesso";
+		cout<< "sucesso";
 	}
 	cout<< "\"}}"<<endl;
 }
@@ -48,7 +70,10 @@ void Grafo::inserirVertice(int ID, string nome)
 void Grafo::inserirAresta(int ID1, int ID2, int peso)
 {
 	matrizAdj[ID1*numeroVert+ID2] = peso;
-	// arestas->insereOrdenado(ID1,ID2,peso);
+	if (peso < 0)
+	{
+		arestasNegativas = true;
+	}
 }
 
 void Grafo::removerVertice(int ID)
@@ -62,23 +87,23 @@ void Grafo::removerVertice(int ID)
 
 		for (j = 0; j < numeroVert; ++j) {
 			// Apaga todas as arestas para o qual ele aponta
-			matrizAdj[ID*numeroVert+j] = -1;
+			matrizAdj[ID*numeroVert+j] = INT_MIN;
 
 			// Apaga todas as arestas para o qual apontam para ele
-			matrizAdj[j*numeroVert+ID] = -1;
+			matrizAdj[j*numeroVert+ID] = INT_MIN;
 		}
-		cout<< "Sucesso\"}}"<<endl;
+		cout<< "sucesso\"}}"<<endl;
 	}
 	else
 	{
-		cout<< "Falha\"}}"<<endl;
+		cout<< "falha\"}}"<<endl;
 	}
 	numeroVertAtual--;
 }
 
 void Grafo::removerAresta(int ID1, int ID2)
 {
-	matrizAdj[ID1*numeroVert+ID2] = -1;
+	matrizAdj[ID1*numeroVert+ID2] = INT_MIN;
 }
 
 void Grafo::imprimeTable()
@@ -90,7 +115,14 @@ void Grafo::imprimeTable()
 
 	for (i = 0; i < numeroVert; ++i) {
 		for (j = 0; j < numeroVert; ++j) {
-			cout<<matrizAdj[ i*numeroVert + j]<< "\t";
+			if (matrizAdj[ i*numeroVert + j] == INT_MIN)
+			{
+				cout<< "-  ";
+			}
+			else
+			{
+				cout<<matrizAdj[ i*numeroVert + j]<< "  ";
+			}
 		}
 		cout<< endl;
 	}
@@ -102,14 +134,14 @@ void Grafo::vizinhos(int ID)
 	cout<< "{\"vizinhos\":{\"ID\":"<< ID << " \"resposta\":";
 	if (tabelaRef[ID] == "")
 	{
-		cout<<"\"Falha\", \"vizinhos\":[]}}"<<endl;
+		cout<<"\"falha\", \"vizinhos\":[]}}"<<endl;
 	}
 	else
 	{
-		cout<< "\"Sucesso\",\"vizinhos\":[";
+		cout<< "\"sucesso\",\"vizinhos\":[";
 		
 		for (i = 0; i < numeroVert; ++i) {
-			if (matrizAdj[ID*numeroVert+i] != -1)
+			if (matrizAdj[ID*numeroVert+i] != INT_MIN)
 			{
 				if (flag != 0)
 				{
@@ -126,6 +158,28 @@ void Grafo::vizinhos(int ID)
 }
 
 void Grafo::conexao(int ID1, int ID2)
+{
+	cout<< "{\"conexao\":{\"ID1\":" << ID1 <<", \"ID2\":"<< ID2<< ", \"resposta\":";  
+	
+	if (tabelaRef[ID1] == "" || tabelaRef[ID2] == "")
+	{
+		cout<< "\"falha\",\"conexao\":\"\"}}"<<endl;
+	}
+	else
+	{
+		cout<< "\"sucesso\",\"conexao\":\"";
+		if (matrizAdj[ID1*numeroVert+ID2] != INT_MIN)
+		{
+			cout<<"sim\"}}"<<endl;
+		}
+		else
+		{
+			cout<<"não\"}}"<<endl;
+		}
+	}
+}
+
+void Grafo::buscaProfundidade(int ID1,int ID2)
 {
 	int v;
 	int i;
@@ -160,7 +214,7 @@ void Grafo::conexao(int ID1, int ID2)
 				return;
 			}
 			for (i = 0; i < numeroVert; ++i) {
-				if (matrizAdj[v*numeroVert + i]	!= -1)
+				if (matrizAdj[v*numeroVert + i]	!= INT_MIN)
 				{
 					// Se esse nodo nao foi visitado insere ele na pilha
 					if (visitas[i] == 0)
@@ -178,19 +232,20 @@ void Grafo::conexao(int ID1, int ID2)
 
 void Grafo::ordemTopologica()
 {
+
 	int i,j, aponta;
 	int nodo;
 	int *matrizAux = (int*) malloc(numeroVert*numeroVert*sizeof(int));
 	
 	Fila<int> ordem;
 	Fila<int> s;
-	
+
 	//Copia a matriz de adjacencia e ja crio a fila de nodo q nao tem ninguem apontando pra ele
 	for (i = 0; i < numeroVert; ++i) {
 		aponta = 0;
 		for (j = 0; j < numeroVert; ++j) {
 			matrizAux[j*numeroVert+i] = matrizAdj[j*numeroVert+i];
-			if (matrizAux[j*numeroVert+i] != -1)
+			if (matrizAux[j*numeroVert+i] != INT_MIN)
 			{
 				aponta = 1;
 			}
@@ -207,15 +262,15 @@ void Grafo::ordemTopologica()
 		ordem.insere(nodo);
 
 		for (i = 0; i < numeroVert; ++i) {
-			if (matrizAux[nodo*numeroVert+i] != -1)
+			if (matrizAux[nodo*numeroVert+i] != INT_MIN)
 			{
-				matrizAux[nodo*numeroVert+i] = -1;
+				matrizAux[nodo*numeroVert+i] = INT_MIN;
 
 				// Verifico se o nodo "i" tem mais arestas, se tiver entao nao faço nada caso contrario insiro ele na fila s
 				aponta = 0;
 
 				for (j = 0; j < numeroVert; ++j) {
-					if (matrizAux[j*numeroVert+i] != -1 && !s.pertence(j))
+					if (matrizAux[j*numeroVert+i] != INT_MIN && !s.pertence(j))
 					{
 						aponta = 1;
 					}
@@ -234,7 +289,7 @@ void Grafo::ordemTopologica()
 	aponta = 0;
 	for ( i = 0; i < numeroVert; ++i) {
 		for ( j = 0; j < numeroVert; ++j) {
-			if (matrizAux[i*numeroVert+j] != -1)
+			if (matrizAux[i*numeroVert+j] != INT_MIN)
 			{
 				aponta = 1;
 			}
@@ -250,118 +305,156 @@ void Grafo::ordemTopologica()
 	}
 	else
 	{
-		cout<< "Grafo possui ciclos"<< endl;
+		cout<<"{\"ordemtop\":[]}"<< endl;
 	}
 }
 
 void Grafo::menorCaminho(int ID1, int ID2)
 {
-	Heap *h = new Heap(numeroVert, ID1,ID2);
-	int *distancia = new int[numeroVert];
-
-	for (int i = 0; i < numeroVert; ++i) {
-		distancia[i] = INT_MAX;
-	}
-
-	distancia[ID1] = 0;
-
-	int *caminho = new int[numeroVert];
-
-	caminho[ID1] = ID1;
-
-	while(!h->isEmpty())
+	if (tabelaRef[ID1] != "" && tabelaRef[ID2] != "")
 	{
-		Nod u;
-		u = h->retira();
 
-		for (int i = 0; i < numeroVert; ++i) {
-			if (matrizAdj[u.getId()*numeroVert+i] != -1)
+		if (arestasNegativas == false)
+		{
+			cout<< "{\"menorcaminho\":{\"ID1\":" << ID1 << ",\"ID2\":" << ID2 << ", \"caminho\":[";
+			Heap *h = new Heap(numeroVert, ID1,ID2);
+			int *distancia = new int[numeroVert];
+
+			for (int i = 0; i < numeroVert; ++i) {
+				distancia[i] = INT_MAX;
+			}
+			distancia[ID1] = 0;
+
+			int *caminho = new int[numeroVert];
+
+			for (int i = 0; i < numeroVert; ++i) {
+				caminho[i] = i;
+			}
+
+			while(!h->isEmpty())
 			{
-				int altura = u.getValor() + matrizAdj[u.getId()*numeroVert+i];
+				Nod u;
+				u = h->retira();
 
-				if (altura < h->getDistance(i))
+				if (u.getValor() != INT_MAX)
 				{
-					h->setHeap(altura,i);
-					distancia[i] = altura;
+					for (int i = 0; i < numeroVert; ++i) {
+						if (matrizAdj[u.getId()*numeroVert+i] != INT_MIN)
+						{
+							int altura = u.getValor();
 
-					caminho[i] = u.getId();
+							altura += matrizAdj[u.getId()*numeroVert+i];
 
-
+							if (altura < distancia[i])
+							{
+								h->setHeap(altura,i);
+								distancia[i] = altura;
+								caminho[i] = u.getId();
+							}
+						}
+					}			
 				}
 			}
+
+			if (distancia[ID2] == INT_MAX)
+			{
+				cout<< "], \"custo\": }}"<<endl;
+			}
+			else
+			{
+				int i = ID2;
+
+				Pilha<int> cam;
+
+				while(caminho[i] != i){
+					cam.insere(i);
+					i = caminho[i];
+
+				}
+				cam.insere(i);	
+
+				if (cam.getTamanho() != 0)
+				{
+					cam.imprime();
+				}
+
+				cout << "],\"custo\":" << distancia[ID2] << "}}" << endl;
+			}
+		}
+		else
+		{
+			cout<< "{\"menorcaminho\":{\"ID1\":" << ID1 << ",\"ID2\":" << ID2 << ", \"caminho\":[]"<<endl;
 		}
 	}
-	int i = ID2;
-
-	Pilha<int> cam;
-
-	while(caminho[i] != i){
-		cam.insere(i);
-		i = caminho[i];
-	}
-	cam.insere(i);
-
-	cout<< "{\"menorcaminho\":{\"ID1\":" << ID1 << ",\"ID2\":" << ID2 << ", \"caminho\":[";
-
-	if (cam.getTamanho() != 0)
+	else
 	{
-		cam.imprime();
+		cout<< "{\"menorcaminho\":{\"ID1\":" << ID1 << ",\"ID2\":" << ID2 << ", \"caminho\":[]"<<endl;
 	}
-
-	cout<< "],\"custo\":"<< distancia[ID2]<< "}}" <<endl;
-	
-	delete h;
-	delete distancia;
-	delete caminho;
 
 }
 
 void Grafo::arvoreMinima()
 {
-	Arestas *arestas = new Arestas();
-
-	for (int i = 0; i < numeroVert; ++i) {
-		for (int j = 0; j < numeroVert; ++j) {
-			if (matrizAdj[i*numeroVert+j] != NULO)
-			{
-				arestas->insereOrdenado(i,j,matrizAdj[i*numeroVert+j]);
-			}
-		}
+	if (direcionado)
+	{
+		cout<< "{\"arvoreminima\":{\"arestas\":[]}}"<<endl;
 	}
-
-	// this->imprimeTable();
-
-	// cout<< "------------------------"<<endl;
-
-	// arestas->print();
-
-	// cout<< "---------------------------"<<endl;
-
-	Arestas *t = new Arestas();
-	struct Aresta *e;
-	ConjuntoDisjunto *c = new ConjuntoDisjunto(numeroVert);
-
-	while(t->getTamanho() < (numeroVertAtual-1))
+	else
 	{
 
-		int conj_id1,conj_id2;
-
-		e = arestas->retira();
-
-		conj_id1 = c->find(e->ID1);
-		conj_id2 = c->find(e->ID2);
-
-		if (conj_id1 != conj_id2)
-		{
-			c->merge(conj_id1,conj_id2);
-			// cout<< "INSERIU NO T"<<endl;
-			// cout<< " ID1: "<< e->ID1 << " "<< e->ID2<< " peso: " << e->peso<<endl;
-			t->insere(e->ID1,e->ID2,e->peso);
+		Arestas *arestas = new Arestas();
+		for (int i = 0; i < numeroVert; ++i) {
+			for (int j = 0; j < numeroVert; ++j) {
+				if (matrizAdj[j*numeroVert+i] != INT_MIN)
+				{
+					arestas->insereOrdenado(j,i,matrizAdj[j*numeroVert+i]);
+				}
+			}
 		}
+
+		Arestas *t = new Arestas();
+		struct Aresta *e;
+		ConjuntoDisjunto *c = new ConjuntoDisjunto(numeroVert);
+		bool conectado = true;
+		int i = 0;
+		while(t->getTamanho() < numeroVertAtual)
+		{
+			int conj_id1,conj_id2;
+			e = arestas->retira();
+
+			if (e == NULL)
+			{
+				cout<< "{\"arvoreminima\":{\"arestas\":[]}}"<<endl;
+				return;
+			}
+
+			conj_id1 = c->find(e->ID1);
+			conj_id2 = c->find(e->ID2);
+			if (conj_id1 != conj_id2)
+			{
+				c->merge(conj_id1,conj_id2);
+				if (e->peso == INT_MIN)
+				{
+					conectado = false;
+					break;
+				}
+				t->insere(e->ID1,e->ID2,e->peso);
+			}
+		}
+		if (conectado)
+		{
+			cout<< "{\"arvoreminima\":{\"arestas\":[";
+			t->print();
+			cout<< "], \"custo\":"<< t->getCusto()<< "}}"<<endl;
+
+		}
+		else
+		{	
+			cout<< "{\"arvoreminima\":{\"arestas\":[]}}"<<endl;
+		}
+		delete arestas;
+		delete e;
+		delete c;
+		delete t;
 	}
-	t->print();
-	delete arestas;
-	delete e;
-	delete c;
-	delete t;
 }

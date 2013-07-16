@@ -1,3 +1,18 @@
+/*
+	Universidade Federal de Pelotas
+	Centro de Desenvolvimento Tecnologico - CDTec
+	Bacharelado em Ciência da Computação
+
+	Estruturas de Dados 2 - 2012/2
+
+	Professor Ricardo Matsumura Araújo
+
+	Algoritmo de Implementação de Grafos
+
+	Aluno:
+		William Dalmorra de Souza		11100360
+*/
+
 #include "Arestas.h"
 
 Arestas::Arestas(){
@@ -15,8 +30,12 @@ void Arestas::print()
 	struct Aresta *aux = descritor;
 	while(aux != NULL)
 	{
-		cout<< "("<< aux->ID1 << "," << aux->ID2 << ") " << aux->peso << endl;
+		cout<< "("<< aux->ID1 << "," << aux->ID2 << ")";
 		aux = aux->prox;
+		if (aux != NULL)
+		{
+			cout<< ",";
+		}
 	}
 }
 
@@ -25,7 +44,6 @@ void Arestas::insereOrdenado(int ID1, int ID2, int peso)
 	tamanho++;
 	struct Aresta *a = (Aresta*) malloc(sizeof(struct Aresta));
 
-	// cout<< "DENTRO DO INSERE DO ARESTAS: "<<endl<< ID1 <<"  "<< ID2<< "  "<< peso<<endl;
 	a->ID1 = ID1;
 	a->ID2 = ID2;
 	a->peso = peso;
@@ -47,10 +65,8 @@ void Arestas::insereOrdenado(int ID1, int ID2, int peso)
 		while(!set)
 		{
 
-			// cout<< a->peso<< "   "<< aux->peso<<endl;
-			if (a->peso > aux->peso)
+			if (a->peso > aux->peso || a->peso == INT_MIN)
 			{
-				// cout<< "SIM"<<endl;
 				if (aux->prox == NULL)
 				{
 					aux->prox = a;
@@ -79,9 +95,7 @@ void Arestas::insereOrdenado(int ID1, int ID2, int peso)
 				}
 				aux->ant = a;
 				set = true;
-
 			}
-			
 		}
 	}
 }
@@ -122,29 +136,12 @@ struct Aresta* Arestas::retira()
 	struct Aresta *aux;
 	aux = descritor;
 
-	descritor = descritor->prox;
-
+	if (descritor != NULL)
+	{
+		descritor = descritor->prox;
+	}
 	return aux;
 }
-
-// void Arestas::retira(int ID1, int ID2, int peso)
-// {
-// 	struct Aresta *aux = descritor;
-// 	struct Aresta *aux2;
-// 	bool achou = false;
-	
-// 	while(!achou)
-// 	{
-// 		if (aux->ID1 == ID1 && aux->ID2 == ID2 && aux->peso == peso)
-// 		{
-// 			while(aux->prox !== NULL)
-// 			{
-
-// 			}
-// 		}
-// 	}
-
-// }
 
 int Arestas::getTamanho()
 {

@@ -1,3 +1,18 @@
+/*
+	Universidade Federal de Pelotas
+	Centro de Desenvolvimento Tecnologico - CDTec
+	Bacharelado em Ciência da Computação
+
+	Estruturas de Dados 2 - 2012/2
+
+	Professor Ricardo Matsumura Araújo
+
+	Algoritmo de Implementação de Grafos
+
+	Aluno:
+		William Dalmorra de Souza		11100360
+*/
+
 #include "Grafo.h"
 #include <cstdio>
 
@@ -14,7 +29,6 @@ int main(int argc, char const *argv[])
 	{
 		Grafo *g = new Grafo(leitor);
 
-
 		cin>> read;
 
 		while (read.compare("*Arcs") != 0 && read.compare("*Edges") != 0)
@@ -28,16 +42,18 @@ int main(int argc, char const *argv[])
 			cin>> read;
 		}
 
-		int flag; 
+		int flag;
 		if (read.compare("*Arcs") == 0)
 		{
 			flag = 0;
+			g->setTipo(true);
 		}
 		else
 		{
 			if (read.compare("*Edges") == 0)
 			{
 				flag = 1;
+				g->setTipo(false);
 			}
 			else
 			{
@@ -73,9 +89,9 @@ int main(int argc, char const *argv[])
 			}
 			cin>> read;
 		}
-		int i = 0;
 
-		while (cin>> reader)
+		cin>> reader;
+		while (reader.compare("@") != 0)
 		{
 			if (reader.compare("get") == 0)
 			{
@@ -120,6 +136,8 @@ int main(int argc, char const *argv[])
 										cin>> reader;
 										int id2 = atoi(reader.c_str());
 										g->menorCaminho(id1,id2);
+									} else {
+										cout<< "Instrução inválida"<<endl;
 									}
 								}
 							}
@@ -127,10 +145,8 @@ int main(int argc, char const *argv[])
 					}
 				}
 			}
-			i++;
+			cin >> reader;
 		}
-		// g->imprimeTable();
-
 
 	}
 	else

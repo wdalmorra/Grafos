@@ -1,3 +1,18 @@
+/*
+	Universidade Federal de Pelotas
+	Centro de Desenvolvimento Tecnologico - CDTec
+	Bacharelado em Ciência da Computação
+
+	Estruturas de Dados 2 - 2012/2
+
+	Professor Ricardo Matsumura Araújo
+
+	Algoritmo de Implementação de Grafos
+
+	Aluno:
+		William Dalmorra de Souza		11100360
+*/
+
 #ifndef HEAP_H_
 #define HEAP_H_
 
@@ -7,7 +22,7 @@
 
 using namespace std;
 
-#define MAX 3000000
+#define MAX INT_MAX
 
 class Nod
 {

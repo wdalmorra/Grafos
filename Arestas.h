@@ -1,8 +1,24 @@
+/*
+	Universidade Federal de Pelotas
+	Centro de Desenvolvimento Tecnologico - CDTec
+	Bacharelado em Ciência da Computação
+
+	Estruturas de Dados 2 - 2012/2
+
+	Professor Ricardo Matsumura Araújo
+
+	Algoritmo de Implementação de Grafos
+
+	Aluno:
+		William Dalmorra de Souza		11100360
+*/
+
 #ifndef ARESTAS_H_
 #define ARESTAS_H_
 
 #include <cstdlib>
 #include <iostream>
+#include <climits>
 
 using namespace std;
 
